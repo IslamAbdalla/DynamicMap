@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<!-- saved from url=(0053)http://wissamapps.esy.es/dashboard/configuration.html -->
+<html>
+<head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+
+
+  <title>Dynamic map page</title>
+  <style>
+  body {
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:14px;
+  }
+
+  label {
+    font-weight:bold;
+    width:100px;
+    font-size:14px;
+  }
+
+  .box {
+    border:#666666 solid 1px;
+  }
+
+       #map {
+        height: 400px;
+        width: 100%;
+       }
+
+
+  </style></head>
+
+
+
+
+
+
+
+  <body>
+    <h1>Dynamic map</h1>
+    <div id="map">
+    </div>
+
+
+    <script>
+         function initMap() {
+           var uluru = {lat: -25.363, lng: 131.044};
+           var map = new google.maps.Map(document.getElementById('map'), {
+             zoom: 4,
+             center: uluru
+           });
+           var marker = new google.maps.Marker({
+             position: uluru,
+             map: map
+           });
+         }
+       </script>
+       <script async defer
+       src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB3OefEn0Ul0NJcBKU2ShzVZ8FMBGIT3qM&callback=initMap">
+       </script>
+
+  </body>
+  </html>
