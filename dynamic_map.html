@@ -55,13 +55,13 @@
   <div id="info_list">
     <h3>List of requests</h3>
     <ul id="requests_list ">
-      <li><span>Requets ID: </span> <span id="request_id">123</span></li>
-      <li><span>Requets ID: </span> <span id="request_id">123</span></li>
+      <li><span>Requets ID: </span> <span>123</span></li>
+      <li><span>Requets ID: </span> <span>123</span></li>
     </ul>
       <h3>List of drivers</h3>
       <ul id="requests_list ">
-        <li><span>Requets ID: </span> <span id="request_id">123</span></li>
-        <li><span>Requets ID: </span> <span id="request_id">123</span></li>
+        <li><span>Requets ID: </span> <span>123</span></li>
+        <li><span>Requets ID: </span> <span>123</span></li>
       </ul>
 
   </div>
@@ -96,6 +96,10 @@
 		window.globals = {};
 
 			function initMap() {
+
+				$( "#empty_details" ).css( "display", "block" );
+				$( "#request_details" ).css( "display", "none" );
+				$( "#driver_details" ).css( "display", "none" );
 				var khartoumCords = {lat: 15.592791, lng: 32.534134};
 				window.globals.map = new google.maps.Map(document.getElementById('map'), {
 					zoom: 11,
@@ -113,11 +117,19 @@
 					map: window.globals.map,
 					data: request
 				});
+
+				console.log(request.status);
+				if (request.status == "accepted") {
+					marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+				} else if (request.status == "on_the_way") {
+					marker.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
+				} else if (request.status == "arrived_at_pickup") {
+					marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
+				}
 			window.globals.requestMarkers[i] = marker;
 			window.globals.requestMarkers[i].details = request;
 			google.maps.event.addListener(marker, 'click', (function(marker, i) {
         return function() {
-          // console.log(marker.data.request_id);
 					showRequestDetails(marker.data);
         }
       })(marker, i));
@@ -126,13 +138,22 @@
       console.log(listOfDrivers);
     }
 
-		function showMrker(){
-
-		}
-
 		function showRequestDetails(requestDetails){
-			console.log(requestDetails.request_id);
-			// console.log("Request id: ".requestDetails);
+			$( "#empty_details" ).css( "display", "none" );
+			$( "#request_details" ).css( "display", "block" );
+
+			// $("#request_id" ).html("requestDetails.request_id");
+			$("#request_id").html(requestDetails.request_id);
+			$("#request_time").html(requestDetails.time);
+			$("#request_notes").html(requestDetails.notes);
+			$("#request_price").html(requestDetails.price);
+			$("#request_status").html(requestDetails.status);
+			$("#passenger_name").html(requestDetails.passenger_name);
+			$("#passenger_phone").html(requestDetails.passenger_phone);
+			$("#driver_name").html(requestDetails.request_id);
+			$("#driver_phone").html(requestDetails.request_id);
+
+
 		}
 
 	</script>
