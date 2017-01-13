@@ -4,20 +4,20 @@ var baseURL = "http://127.0.0.1:8080/"
 function ajaxFunction(){
    // document.write("ajaxFunction")
    try{
-      
+
       // Opera 8.0+, Firefox, Safari
       ajaxRequest = new XMLHttpRequest();
    }catch (e){
-   
+
       // Internet Explorer Browsers
       try{
          ajaxRequest = new ActiveXObject("Msxml2.XMLHTTP");
       }catch (e) {
-      
+
          try{
             ajaxRequest = new ActiveXObject("Microsoft.XMLHTTP");
          }catch (e){
-      
+
             // Something went wrong
             alert("Your browser broke!");
             return false;
@@ -41,6 +41,7 @@ function update_map() {
       // ajaxDisplay.innerHTML = ajaxRequest.responseText;
       if (data.status === "0"){//data.requests and data.drivers contain what you need
 
+        shworMrakersAndDrivers(data.requests, data.drivers);
         // ajaxDisplay.textContent = data.requests
       // $.each(data.requests, function(index, element) {
       //         $.each(element, function(index2, element2) {
@@ -49,13 +50,13 @@ function update_map() {
       //       }));
       //     });
       //   });
-      } 
+      }
      // $.each(data, function(index, element) {
       // if(index === "greetings")
             // $('body').append($('<div>', {
                 // text: element
             // }));
-        // });               
+        // });
     },
     complete: function() {
       // Schedule the next request when the current one's complete
@@ -70,7 +71,7 @@ function update_map() {
   //  // setTimeout(update_map, 2000);
   // }
   // var url = "ajax_server.php" ;
-   
+
   //  ajaxRequest.open("POST", url, true);
   //  ajaxRequest.send(null);
 
@@ -89,7 +90,7 @@ function direct(request_id, driver_id) {
         success: function(data) {
       var ajaxDisplay = document.getElementById('ajaxDiv');
       if (data.status === "0"){//data.requests and data.drivers contain what you need
-                   
+
     }
   }
   });
@@ -104,7 +105,7 @@ function cancel(request_id) {
         success: function(data) {
       var ajaxDisplay = document.getElementById('ajaxDiv');
       if (data.status === "0"){//data.requests and data.drivers contain what you need
-                   
+
     }
   }
   });

@@ -2,6 +2,8 @@
 <html>
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
+  <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.1.1.min.js"></script>
+  <script src="ajax_functions.js"></script>
 
 	<title>Dynamic map page</title>
 	<style>
@@ -23,9 +25,16 @@
 			border:#666666 solid 1px;
 		}
 
+    #info_list {
+      height: 90vh;
+			width: 10%;
+			float: left;
+			margin: 5px;
+    }
+
 		#map {
 			height: 90vh;
-			width: 80%;
+			width: 70%;
 			float: left;
 			margin: 5px;
 		}
@@ -42,6 +51,21 @@
 
 <body>
 	<h1>Dynamic map</h1>
+
+  <div id="info_list">
+    <h3>List of requests</h3>
+    <ul id="requests_list ">
+      <li><span>Requets ID: </span> <span id="request_id">123</span></li>
+      <li><span>Requets ID: </span> <span id="request_id">123</span></li>
+    </ul>
+      <h3>List of drivers</h3>
+      <ul id="requests_list ">
+        <li><span>Requets ID: </span> <span id="request_id">123</span></li>
+        <li><span>Requets ID: </span> <span id="request_id">123</span></li>
+      </ul>
+
+  </div>
+
 	<div id="map">
 	</div>
 	<div id="detials">
@@ -69,27 +93,46 @@
 
 
 		<script>
-
-			
+		window.globals = {};
 
 			function initMap() {
 				var khartoumCords = {lat: 15.592791, lng: 32.534134};
-				var map = new google.maps.Map(document.getElementById('map'), {
+				window.globals.map = new google.maps.Map(document.getElementById('map'), {
 					zoom: 11,
 					center: khartoumCords
 				});
-			// var marker = new google.maps.Marker({
-			// 	position: uluru,
-			// 	map: map
-			// });
 		}
+
+    function  shworMrakersAndDrivers(listOfRequests, listOfDrivers){
+
+      for (var i = 0; i < listOfRequests.length; i++) {
+      	request = listOfRequests[i];
+				window.globals.requestMarkers = [];
+				var marker = new google.maps.Marker({
+					position: {lat:  Number(request.pickup_lat) , lng:  Number(request.pickup_lng)},
+					map: window.globals.map,
+					data: request
+				});
+			window.globals.requestMarkers[i] = marker;
+			window.globals.requestMarkers[i].details = request;
+			google.maps.event.addListener(marker, 'click', (function(marker, i) {
+        return function() {
+          // console.log(marker.data.request_id);
+					showRequestDetails(marker.data);
+        }
+      })(marker, i));
+
+      }
+      console.log(listOfDrivers);
+    }
 
 		function showMrker(){
 
 		}
 
-		function showRequestDetails(){
-
+		function showRequestDetails(requestDetails){
+			console.log(requestDetails.request_id);
+			// console.log("Request id: ".requestDetails);
 		}
 
 	</script>
@@ -99,4 +142,3 @@
 
 </body>
 </html>
-
