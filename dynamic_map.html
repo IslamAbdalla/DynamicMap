@@ -11,6 +11,10 @@
 			font-family:Arial, Helvetica, sans-serif;
 			font-size:14px;
 		}
+		ul{
+			margin:0;
+			padding:0;
+		}
 
 		h1 {
 			height: 3vh;
@@ -44,7 +48,43 @@
 			width: 18%;
 			float: left;
 			margin: 5px;
+			position: relative;
+    	overflow:hidden;
+
 		}
+		#request_details{
+		display: none;
+
+		}
+		#driver_details{
+		display: none;
+
+		}
+		.button {
+			position: relative;
+			left:0;
+			margin: 0 auto;
+			text-align: center;
+    	overflow: hidden;
+			padding: 10px;
+			margin: 5px;
+			text-decoration: none;
+
+		}
+
+		#cancel_request{
+			background-color: rgb(214, 65, 65);
+			color:white;
+
+		}
+		#redirect_request{
+			background-color: rgb(97, 106, 152);
+			color:white;
+		}
+		.no_decoration{
+			text-decoration: none;
+		}
+
 
 	</style>
 </head>
@@ -54,15 +94,10 @@
 
   <div id="info_list">
     <h3>List of requests</h3>
-    <ul id="requests_list ">
-      <li><span>Requets ID: </span> <span>123</span></li>
-      <li><span>Requets ID: </span> <span>123</span></li>
+    <ul id="requests_list">
     </ul>
       <h3>List of drivers</h3>
-      <ul id="requests_list ">
-        <li><span>Requets ID: </span> <span>123</span></li>
-        <li><span>Requets ID: </span> <span>123</span></li>
-      </ul>
+      <ul id="drivers_list"></ul>
 
   </div>
 
@@ -76,20 +111,35 @@
 		<div id="request_details">
 			<h3>Request details</h3>
 			<ul>
-				<li><span>Requets ID: </span> <span id="request_id">123</span></li>
-				<li><span>Time: </span> <span id="request_time">8:23 3/10/2017</span></li>
-				<li><span>Notes: </span> <span id="request_notes">Hello, world!</span></li>
-				<li><span>Price: </span> <span id="request_price">53 SDG</span></li>
-				<li><span>Status: </span> <span id="request_status">Pending</span></li>
-				<li><span>Passenger name: </span> <span id="passenger_name">Ayman Hassan Salim Gumaa</span></li>
-				<li><span>Passenger phone: </span> <span id="passenger_phone">09123122123</span></li>
-				<li><span>Driver name: </span> <span id="driver_name">Islam Abdalla</span></li>
-				<li><span>Driver phone: </span> <span id="driver_phone">09123212112</span></li>
+				<li><span>Requets ID: </span> <span id="request_id"></span></li>
+				<li><span>Time: </span> <span id="request_time"></span></li>
+				<li><span>Notes: </span> <span id="request_notes"></span></li>
+				<li><span>Price: </span> <span id="request_price"></span><span> SDG</span> </li>
+				<li><span>Status: </span> <span id="request_status"></span></li>
+				<li><span>Passenger name: </span> <span id="passenger_name"></span></li>
+				<li><span>Passenger phone: </span> <span id="passenger_phone"></span></li>
 			</ul>
-
+			<a class="no_decoration" href="#cancel_request"><div class="button" id="cancel_request">Cancel Request</div></a>
+			<a class="no_decoration" href="#redirect_request"><div class="button" id="redirect_request">Redirect Request</div></a>
 		</div>
 
-		<div id="driver_details"></div>
+		<div id="driver_details">
+				<h3>Driver details</h3>
+				<ul>
+				<li><span>Driver name: </span> <span id="driver_name"></span></li>
+				<li><span>Driver phone: </span> <span id="driver_phone"></span></li>
+					</ul>
+
+					<div id="additionl_driver_info">
+					<ul>
+					<li><span>Vehicle: </span> <span id="driver_vehicle"></span></li>
+					<li><span>Plate No.: </span> <span id="driver_plate"></span></li>
+						</ul>
+
+					</div>
+
+
+		</div>
 
 
 		<script>
@@ -105,42 +155,133 @@
 					zoom: 11,
 					center: khartoumCords
 				});
+
+
+								CLEAR = "clear";
+								REDIRECT = "redirect";
+								REQUEST = "request";
+								DRIVER = "driver";
+
+				window.globals.selectedRequest = null;
+				window.globals.selectionState = CLEAR;
+
+				// selectionState = clear request  redirect  driver
+
+				$( "#redirect_request" ).click(enterRedirectMode);
+
 		}
 
-    function  shworMrakersAndDrivers(listOfRequests, listOfDrivers){
+    function  showMrakersAndDrivers(listOfRequests, listOfDrivers, time){
 
+				window.globals.requests = listOfRequests;
+				window.globals.drivers = listOfDrivers;
+
+				$("#requests_list").html('');
+				$("#drivers_list").html('');
+
+				for (var i = 0; i < window.globals.requests.length; i++) {
+					id = window.globals.requests[i].request_id;
+					$("#requests_list").append('<li><span>ID: </span> <span>' + id + '</span></li>');
+				}
+
+				for (var i = 0; i < window.globals.drivers.length; i++) {
+					name = window.globals.drivers[i].name;
+					$("#drivers_list").append('<li><span>' + name + '</span></li>');
+				}
+
+				clearMap();
+
+
+				if (window.globals.selectionState != REDIRECT) {
       for (var i = 0; i < listOfRequests.length; i++) {
       	request = listOfRequests[i];
-				window.globals.requestMarkers = [];
-				var marker = new google.maps.Marker({
-					position: {lat:  Number(request.pickup_lat) , lng:  Number(request.pickup_lng)},
-					map: window.globals.map,
-					data: request
-				});
-
-				console.log(request.status);
-				if (request.status == "accepted") {
-					marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
-				} else if (request.status == "on_the_way") {
-					marker.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
-				} else if (request.status == "arrived_at_pickup") {
-					marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
-				}
-			window.globals.requestMarkers[i] = marker;
-			window.globals.requestMarkers[i].details = request;
-			google.maps.event.addListener(marker, 'click', (function(marker, i) {
-        return function() {
-					showRequestDetails(marker.data);
-        }
-      })(marker, i));
-
+				showRequestMarker(request, i);
       }
+		}
+
+			for (var i = 0; i < listOfDrivers.length; i++) {
+				driver = listOfDrivers[i];
+				showDriverMarker(driver, i);
+			}
       console.log(listOfDrivers);
     }
+
+		function hideRequestsMarkers(){
+				if (window.globals.requestMarkers != null) {
+					for (var i = 0; i < window.globals.requestMarkers.length; i++) {
+						window.globals.requestMarkers[i].setMap(null);
+					}
+				}
+		}
+
+		function clearMap(){
+
+			hideRequestsMarkers();
+
+			if (window.globals.driversMarkers != null) {
+				for (var i = 0; i < window.globals.driversMarkers.length; i++) {
+					window.globals.driversMarkers[i].setMap(null);
+				}
+			}
+
+				window.globals.requestMarkers = [];
+				window.globals.driversMarkers = [];
+
+		}
+
+		function showRequestMarker(request, i){
+			var marker = new google.maps.Marker({
+				position: {lat:  Number(request.pickup_lat) , lng:  Number(request.pickup_lng)},
+				map: window.globals.map,
+				data: request
+			});
+
+			if (request.status == "accepted") {
+				// marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+				marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+			} else if (request.status == "on_the_way") {
+				marker.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
+			} else if (request.status == "arrived_at_pickup") {
+				marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
+			}
+		window.globals.requestMarkers[i] = marker;
+		window.globals.requestMarkers[i].details = request;
+		google.maps.event.addListener(marker, 'click', (function(marker, i) {
+			return function() {
+				showRequestDetails(marker.data);
+			}
+		})(marker, i));
+		}
+
+		function showDriverMarker(driver, i){
+			var marker = new google.maps.Marker({
+				position: {lat:  Number(driver.lat) , lng:  Number(driver.lng)},
+				map: window.globals.map,
+				data: driver
+			});
+
+			if (driver.status == "accepted") {
+				// marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+				marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+			} else if (driver.status == "on_the_way") {
+				marker.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
+			} else if (driver.status == "arrived_at_pickup") {
+				marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
+			}
+		window.globals.driversMarkers[i] = marker;
+		window.globals.driversMarkers[i].details = request;
+		google.maps.event.addListener(marker, 'click', (function(marker, i) {
+			return function() {
+				showDriverDetails(marker.data);
+			}
+		})(marker, i));
+		}
+
 
 		function showRequestDetails(requestDetails){
 			$( "#empty_details" ).css( "display", "none" );
 			$( "#request_details" ).css( "display", "block" );
+			$( "#driver_details" ).css( "display", "block" );
 
 			// $("#request_id" ).html("requestDetails.request_id");
 			$("#request_id").html(requestDetails.request_id);
@@ -150,8 +291,54 @@
 			$("#request_status").html(requestDetails.status);
 			$("#passenger_name").html(requestDetails.passenger_name);
 			$("#passenger_phone").html(requestDetails.passenger_phone);
-			$("#driver_name").html(requestDetails.request_id);
-			$("#driver_phone").html(requestDetails.request_id);
+
+			if (isDriverOnline(requestDetails.driver_id)) {
+				console.log("Driver online");
+			} else {
+				console.log("Driver offline");
+				$("#driver_name").html(requestDetails.driver_name);
+				$("#driver_phone").html(requestDetails.driver_phone);
+			}
+		}
+
+		function showDriverDetails(driverDetails) {
+
+			}
+
+		function isDriverOnline(id){
+			if (window.globals.drivers != null ) {
+				for (var i = 0; i < window.globals.drivers.length; i++) {
+					if (window.globals.drivers[0].id == id){
+						return true;
+					}
+				}
+			}
+			return false;
+
+		}
+
+		function reshowRequestsMarkers(){
+			if (window.globals.requestMarkers != null) {
+				for (var i = 0; i < window.globals.requestMarkers.length; i++) {
+					window.globals.requestMarkers[i].setMap(window.globals.map);
+				}
+			}
+		}
+
+		function enterRedirectMode(){
+			console.log(window.globals.selectionState);
+			if (window.globals.selectionState != REDIRECT) {
+				hideRequestsMarkers();
+				$( "#cancel_request" ).css( "display", "none" );
+				$( "#redirect_request" ).html( "Cancel redirection" );
+				window.globals.selectionState = REDIRECT;
+
+			} else {
+				reshowRequestsMarkers();
+				$( "#cancel_request" ).css( "display", "block" );
+				$( "#redirect_request" ).html( "Redirect Request" );
+				window.globals.selectionState = CLEAR;
+			}
 
 
 		}

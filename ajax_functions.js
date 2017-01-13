@@ -41,7 +41,7 @@ function update_map() {
       // ajaxDisplay.innerHTML = ajaxRequest.responseText;
       if (data.status === "0"){//data.requests and data.drivers contain what you need
 
-        shworMrakersAndDrivers(data.requests, data.drivers);
+        showMrakersAndDrivers(data.requests, data.drivers, data.time);
         // ajaxDisplay.textContent = data.requests
       // $.each(data.requests, function(index, element) {
       //         $.each(element, function(index2, element2) {
