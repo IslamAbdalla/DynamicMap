@@ -45,11 +45,33 @@
 	<div id="map">
 	</div>
 	<div id="detials">
-		<h3>Click on a marker to see options</h4>
+		<div id="empty_details">
+			<h3>Click on a marker to see options</h3>
 		</div>
+
+		<div id="request_details">
+			<h3>Request details</h3>
+			<ul>
+				<li><span>Requets ID: </span> <span id="request_id">123</span></li>
+				<li><span>Time: </span> <span id="request_time">8:23 3/10/2017</span></li>
+				<li><span>Notes: </span> <span id="request_notes">Hello, world!</span></li>
+				<li><span>Price: </span> <span id="request_price">53 SDG</span></li>
+				<li><span>Status: </span> <span id="request_status">Pending</span></li>
+				<li><span>Passenger name: </span> <span id="passenger_name">Ayman Hassan Salim Gumaa</span></li>
+				<li><span>Passenger phone: </span> <span id="passenger_phone">09123122123</span></li>
+				<li><span>Driver name: </span> <span id="driver_name">Islam Abdalla</span></li>
+				<li><span>Driver phone: </span> <span id="driver_phone">09123212112</span></li>
+			</ul>
+
+		</div>
+
+		<div id="driver_details"></div>
 
 
 		<script>
+
+			
+
 			function initMap() {
 				var khartoumCords = {lat: 15.592791, lng: 32.534134};
 				var map = new google.maps.Map(document.getElementById('map'), {
@@ -62,14 +84,14 @@
 			// });
 		}
 
-
 		function showMrker(){
 
 		}
 
-		function updateDetailsDiv(){
+		function showRequestDetails(){
 
 		}
+
 	</script>
 	<script async defer
 	src="https://maps.googleapis.com/maps/api/js?key=AIzaSyB3OefEn0Ul0NJcBKU2ShzVZ8FMBGIT3qM&callback=initMap">
