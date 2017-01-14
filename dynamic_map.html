@@ -10,11 +10,18 @@
 		body {
 			font-family:Arial, Helvetica, sans-serif;
 			font-size:14px;
+				color:rgb(69, 90, 100);
 		}
 		ul{
 			margin:0;
 			padding:0;
+			list-style: none;
 		}
+		li{
+			padding: 9px 3px;
+			margin: 0 7px;
+		}
+
 
 		h1 {
 			height: 3vh;
@@ -31,16 +38,24 @@
 
     #info_list {
       height: 90vh;
-			width: 10%;
+			width: 15%;
 			float: left;
 			margin: 5px;
 			position: relative;
     	overflow:auto;
     }
+		#info_list li{
+			cursor: pointer;
+			border-bottom: 1px solid rgb(230,230,230);
+		}
+
+		#info_list li:hover{
+			background-color: rgb(250,250,250);
+		}
 
 		#map {
 			height: 90vh;
-			width: 70%;
+			width: 65%;
 			float: left;
 			margin: 5px;
 		}
@@ -57,11 +72,13 @@
 		#request_details{
 		display: none;
 		overflow:auto;
+		padding: 0 10px;
 
 		}
 		#driver_details{
 		display: none;
 		overflow:auto;
+		padding: 0 10px;
 
 		}
 		.button {
@@ -83,7 +100,7 @@
 
 		}
 		#redirect_request{
-			background-color: rgb(97, 106, 152);
+			background-color: rgb(77, 182, 172);
 			color:white;
 		}
 		.no_decoration{
@@ -123,6 +140,59 @@
 			color:rgb(20,20,20);
 
 		}
+		#header{
+			width: 100%;
+			min-height: 60px;
+			display: inline-block;
+		}
+
+		#top_logo{
+			height: 60px;
+			width: 100px;
+			background-image: url(http://127.0.0.1:8080/map/driver_logo.png);
+			background-repeat: no-repeat;
+			background-size: contain;);
+			margin-top: 4px;
+			float: left;
+			/*display: inline-block;;*/
+		}
+		#title{
+			margin-left: 20px;
+			display: block;
+			float: left;
+			font-style: normal;
+			font-weight: normal;
+			font-size: 22px;
+			/*display: inline-block;;*/
+		}
+				#highlight_driver{
+					background-color: rgb(130,130,130);
+					color:white;
+
+				}
+
+		/*#empty_details{
+			width:
+		}*/
+		#empty_details_text{
+			text-align: center;
+			color: rgb(200,200,200);
+
+		}
+#driver_status{
+	font-size: 16px;
+	text-align: center;
+	padding: 10px;
+}
+
+		h3 {
+		color: rgb(77, 182, 172);
+	}
+
+	#request_details li, #driver_details li {
+		padding: 3px;
+	}
+
 
 
 	</style>
@@ -131,22 +201,24 @@
 <body>
 	<div id="darkening_background">
 		<div id="dialog_box">
-			<p id="dialog_message">Are you sure you are a human?</p>
+			<p id="dialog_message"></p>
 
-			<div class="button dialog_button" id="main_action">M Request</div>
-			<div class="button dialog_button" id="secondary_action">S action</div>
+			<div class="button dialog_button" id="main_action"></div>
+			<div class="button dialog_button" id="secondary_action">OK</div>
 
 
 		</div>
 
 	</div>
-	<h1>Dynamic map</h1>
+	<div id="header">
 
+		<div id="top_logo"></div> <h1 id="title">Dynamic map</h1>
+		</div>
   <div id="info_list">
-    <h3>List of requests</h3>
+    <h3>Requests</h3>
     <ul id="requests_list">
     </ul>
-      <h3>List of drivers</h3>
+      <h3>Drivers</h3>
       <ul id="drivers_list"></ul>
 
   </div>
@@ -155,13 +227,13 @@
 	</div>
 	<div id="detials">
 		<div id="empty_details">
-			<h3>Click on a marker to see options</h3>
+			<h3 id="empty_details_text">Click on a marker to see options</h3>
 		</div>
 
 		<div id="request_details">
 			<h3>Request details</h3>
 			<ul>
-				<li><span>Requets ID: </span> <span id="request_id"></span></li>
+				<li><span>ID: </span> <span id="request_id"></span></li>
 				<li><span>Time: </span> <span id="request_time"></span></li>
 				<li><span>Notes: </span> <span id="request_notes"></span></li>
 				<li><span>Price: </span> <span id="request_price"></span><span> SDG</span> </li>
@@ -179,7 +251,7 @@
 				<li><span>Driver name: </span> <span id="driver_name"></span></li>
 				<li><span>Driver phone: </span> <span id="driver_phone"></span></li>
 					</ul>
-					<span>Driver status: </span> <span id="driver_status"></span>
+					 <div id="driver_status"></div>
 
 					<div id="additionl_driver_info">
 					<!-- <ul>
@@ -242,7 +314,24 @@
 					var minutes = Math.floor((time - 60 * 60 * hours) / 60);
 					var seconds = (time - hours * 60 * 60 - minutes * 60 );
 					// console.log(id +"  " + time);
-					$("#requests_list").append('<li id="list_request'+id+'"><span>ID: </span> <span>' + id + '</span><span>,&emsp;</span><span>'+minus + hours+":" +minutes+":" + seconds+ '</span></li>');
+
+					var status = "";
+					var color = "rgb(0,0,0)";
+					if (window.globals.requests[i].status == "accepted") {
+						status = "Accepted";
+						var color = "rgb(253, 226, 74)";
+					}
+					else 	if (window.globals.requests[i].status == "on_the_way"){
+						status = "OTW";
+						var color = "rgb(74, 167, 253)";
+					}
+					else 	if (window.globals.requests[i].status == "arrived_at_pickup") {
+						status = "Arrived";
+						var color = "rgb(118, 235, 100)";
+					}
+
+//
+					$("#requests_list").append('<li id="list_request'+id+'"><span>ID: </span> <span>' + id + '</span><span>&emsp;</span><span>'+minus + hours+":" +minutes+":" + seconds+ '</span> <span>&emsp;</span> <span style="color:'+color+';" >'+ status + '</span>   </li>');
 					$("#list_request"+id).off();
 					$("#list_request"+id).click(id, function (event){
 						if (window.globals.selectionState != REDIRECT) {
@@ -395,6 +484,8 @@
 
 			if (isDriverOnline(requestDetails.driver_id)) {
 					$("#driver_status").html("Online");
+					$("#driver_status").css( "color", "rgb(40, 158, 22)" );
+					$("#driver_status").css( "display", "none" );
 					$("#additionl_driver_info").css( "display", "block" );
 
 						animateMarker(window.globals.driversMarkers[getDriverIndexById(requestDetails.driver_id)]);
@@ -415,6 +506,8 @@
 
 			} else {
 				$("#driver_status").html("Offline");
+				$("#driver_status").css( "display", "block" );
+				$("#driver_status").css( "color", "rgb(130,130,130)" );
 				$("#additionl_driver_info").css( "display", "none" );
 
 			}
