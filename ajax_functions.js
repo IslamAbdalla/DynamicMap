@@ -89,8 +89,14 @@ function direct(request_id, driver_id) {
     url: baseURL + "admin/direct",
         success: function(data) {
       var ajaxDisplay = document.getElementById('ajaxDiv');
-      if (data.status === "0"){//data.requests and data.drivers contain what you need
+      if (data.status === "0"){
 
+        showDialogInfo("Request redirected successfully.\nWait a while to see the effect.");
+        enterRedirectMode();
+
+    } else {
+
+      showDialogInfo("Failed to redirect request. Try again later.");
     }
   }
   });

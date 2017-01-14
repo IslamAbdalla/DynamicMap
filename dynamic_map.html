@@ -362,6 +362,7 @@
 
 
 		function showRequestDetails(requestDetails){
+			window.globals.selectedRequest = requestDetails;
 			$( "#empty_details" ).css( "display", "none" );
 			$( "#request_details" ).css( "display", "block" );
 			$( "#driver_details" ).css( "display", "block" );
@@ -397,6 +398,11 @@
 		}
 
 		function showDriverDetails(driverDetails) {
+			if (window.globals.selectionState == REDIRECT) {
+				showDialog("Redirect request to "+driverDetails.name + "?", "Redirect requets", redirectRequest,
+				 {request_id : window.globals.selectedRequest.request_id , driver_id : driverDetails.id});
+
+			}
 
 			}
 
@@ -528,6 +534,11 @@ function getDriverIndexById(id){
 			$( "#request_details" ).css( "display", "none" );
 			$( "#driver_details" ).css( "display", "none" );
 
+		}
+
+		function redirectRequest(data){
+			console.log("called: " +data.request_id+ "   " +data.driver_id);
+			direct(data.request_id, data.driver_id);
 		}
 
 	</script>
