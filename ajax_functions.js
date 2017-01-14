@@ -61,8 +61,8 @@ function update_map() {
     complete: function() {
       // Schedule the next request when the current one's complete
       setTimeout(update_map, 5000);
-      direct("12332","86");
-      cancel("132");
+      // direct("12332","86");
+      // cancel("132");
     }
   });
   // ajaxRequest.onreadystatechange = function(){
@@ -97,6 +97,7 @@ function direct(request_id, driver_id) {
 }
 
 function cancel(request_id) {
+  console.log(request_id);
   $.ajax({
     type:"POST",
     data:{"request_id":request_id},
@@ -104,9 +105,16 @@ function cancel(request_id) {
     url: baseURL + "admin/cancel",
         success: function(data) {
       var ajaxDisplay = document.getElementById('ajaxDiv');
+
       if (data.status === "0"){
         removeRequest(request_id);
+        showDialogInfo("Request canceled successfully.");
+        showNoDetailsInDetailsPane();
+        // console.log(request);
 
+    } else {
+
+      showDialogInfo("Failed to cancel request. Try again later.");
     }
   }
   });

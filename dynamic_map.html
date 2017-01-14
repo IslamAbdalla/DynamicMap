@@ -69,6 +69,7 @@
 			padding: 10px;
 			margin: 5px;
 			text-decoration: none;
+			cursor: pointer;
 
 		}
 
@@ -85,11 +86,56 @@
 			text-decoration: none;
 		}
 
+		#darkening_background{
+			background-color: rgba(0, 0, 0, 0.3);
+			height: 100vh;
+			width: 100vw;
+			position: fixed;
+			top: 0;
+			left: 0;
+			z-index: 1000;
+			display: none;
+		}
+		#dialog_box{
+			background-color: rgb(255, 255, 255);
+			display: inline-block;
+			position: fixed;
+  top: 50%;
+  left: 50%;
+  /* bring your own prefixes */
+  transform: translate(-50%, -50%);
+	padding:5px 20px;
+
+		}
+		.dialog_button{
+			float: right;
+			margin: 0 0 10px 10px ;
+				background-color:rgb(117, 117, 117);
+				color:white;
+
+		}
+		#secondary_action{
+			background-color: white;
+			color:rgb(20,20,20);
+
+		}
+
 
 	</style>
 </head>
 
 <body>
+	<div id="darkening_background">
+		<div id="dialog_box">
+			<p id="dialog_message">Are you sure you are a human?</p>
+
+			<div class="button dialog_button" id="main_action">M Request</div>
+			<div class="button dialog_button" id="secondary_action">S action</div>
+
+
+		</div>
+
+	</div>
 	<h1>Dynamic map</h1>
 
   <div id="info_list">
@@ -334,10 +380,11 @@
 
 			$("#driver_name").html(requestDetails.driver_name);
 			$("#driver_phone").html(requestDetails.driver_phone);
-$( "#cancel_request" ).off();
+			$( "#cancel_request" ).off();
+
 			$( "#cancel_request" ).click(requestDetails.request_id, function (event) {
-					cancel(event.data);
-					console.log(event.data);
+					// cancel(event.data);
+					showDialog("Are you sure you want to cancel this request?", "Cancel request", cancel, event.data);
 			} );
 
 
@@ -356,7 +403,7 @@ $( "#cancel_request" ).off();
 		function isDriverOnline(id){
 			if (window.globals.drivers != null ) {
 				for (var i = 0; i < window.globals.drivers.length; i++) {
-					if (window.globals.drivers[0].id == id){
+					if (window.globals.drivers[i].id == id){
 						return true;
 					}
 				}
@@ -419,17 +466,69 @@ function getDriverIndexById(id){
 		}
 
 		function removeRequest(id){
+			console.log("removeRequest called");
 			index = getRequestIndexById(id);
-			window.globals.requestMarkers[index].setMap(null);
-			window.globals.requestMarkers.splice(index,1);
+			if (window.globals.requestMarkers[index] != null) {
 
-			window.globals.requests.splice(index,1);
+				window.globals.requestMarkers[index].setMap(null);
+				window.globals.requestMarkers.splice(index,1);
 
-
+				window.globals.requests.splice(index,1);
+			}
 
 		}
 
+		function hideDialog(){
+			$( "#darkening_background" ).css( "display", "none" );
+		}
 
+		function showDialog(message, mainAction, mainActionFunction, mainActionFunctionParams){
+
+			$( "#darkening_background" ).css( "display", "block" );
+
+				$( "#dialog_message" ).html(message);
+
+				$( "#main_action" ).off();
+				$( "#main_action" ).off();
+				$( "#main_action" ).css( "display", "block" );
+				$( "#secondary_action" ).css( "display", "block" );
+
+				$( "#main_action" ).html(mainAction);
+				$( "#secondary_action" ).html("No");
+
+				$( "#secondary_action" ).click(hideDialog);
+				$( "#main_action" ).click(mainActionFunctionParams, function (event){
+					mainActionFunction(event.data);
+				});
+
+		}
+
+		function showDialogNoButton(message){
+			$( "#darkening_background" ).css( "display", "block" );
+			$( "#dialog_message" ).html(message);
+			$( "#main_action" ).css( "display", "none" );
+			$( "#secondary_action" ).css( "display", "none" );
+			$( "#main_action" ).off();
+			$( "#main_action" ).off();
+
+		}
+		function showDialogInfo(message){
+			$( "#darkening_background" ).css( "display", "block" );
+			$( "#dialog_message" ).html(message);
+			$( "#main_action" ).css( "display", "none" );
+			$( "#secondary_action" ).css( "display", "block" );
+			$( "#secondary_action" ).html("OK");
+			$( "#secondary_action" ).click(hideDialog);
+			$( "#main_action" ).off();
+			$( "#main_action" ).off();
+		}
+
+		function showNoDetailsInDetailsPane(){
+			$( "#empty_details" ).css( "display", "block" );
+			$( "#request_details" ).css( "display", "none" );
+			$( "#driver_details" ).css( "display", "none" );
+
+		}
 
 	</script>
 	<script async defer
