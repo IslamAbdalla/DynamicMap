@@ -34,6 +34,8 @@
 			width: 10%;
 			float: left;
 			margin: 5px;
+			position: relative;
+    	overflow:auto;
     }
 
 		#map {
@@ -49,15 +51,17 @@
 			float: left;
 			margin: 5px;
 			position: relative;
-    	overflow:hidden;
+    	overflow:auto;
 
 		}
 		#request_details{
 		display: none;
+		overflow:auto;
 
 		}
 		#driver_details{
 		display: none;
+		overflow:auto;
 
 		}
 		.button {
@@ -175,15 +179,17 @@
 				<li><span>Driver name: </span> <span id="driver_name"></span></li>
 				<li><span>Driver phone: </span> <span id="driver_phone"></span></li>
 					</ul>
+					<span>Driver status: </span> <span id="driver_status"></span>
 
-					<!-- <div id="additionl_driver_info">
-					<ul>
+					<div id="additionl_driver_info">
+					<!-- <ul>
 					<li><span>Vehicle: </span> <span id="driver_vehicle"></span></li>
 					<li><span>Plate No.: </span> <span id="driver_plate"></span></li>
-						</ul>
+						</ul> -->
 
-					</div> -->
-					<span>Driver status: </span> <span id="driver_status"></span>
+						<div class="button" id="highlight_driver">Highlight driver</div>
+
+					</div>
 
 		</div>
 
@@ -237,6 +243,7 @@
 					var seconds = (time - hours * 60 * 60 - minutes * 60 );
 					// console.log(id +"  " + time);
 					$("#requests_list").append('<li id="list_request'+id+'"><span>ID: </span> <span>' + id + '</span><span>,&emsp;</span><span>'+minus + hours+":" +minutes+":" + seconds+ '</span></li>');
+					$("#list_request"+id).off();
 					$("#list_request"+id).click(id, function (event){
 						if (window.globals.selectionState != REDIRECT) {
 
@@ -253,6 +260,7 @@
 					var name = window.globals.drivers[i].name;
 					var id = window.globals.drivers[i].id;
 					$("#drivers_list").append('<li id="list_driver'+id+'"><span>' + name + '</span></li>');
+					$("#list_driver"+id).off();
 					$("#list_driver"+id).click(id, function (event){
 						if (window.globals.selectionState != REDIRECT) {
 							id = event.data;
@@ -314,11 +322,13 @@
 
 			if (request.status == "accepted") {
 				// marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
-				marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
+				marker.setIcon('http://127.0.0.1:8080/map/accepted.png');
 			} else if (request.status == "on_the_way") {
-				marker.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
+				// marker.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
+				marker.setIcon('http://127.0.0.1:8080/map/on_the_way.png');
 			} else if (request.status == "arrived_at_pickup") {
-				marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
+				// marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
+				marker.setIcon('http://127.0.0.1:8080/map/arrived.png');
 			}
 		window.globals.requestMarkers[i] = marker;
 		window.globals.requestMarkers[i].details = request;
@@ -343,14 +353,8 @@
 				data: driver
 			});
 
-			if (driver.status == "accepted") {
-				// marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
-				marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
-			} else if (driver.status == "on_the_way") {
-				marker.setIcon('http://maps.google.com/mapfiles/ms/icons/blue-dot.png');
-			} else if (driver.status == "arrived_at_pickup") {
-				marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
-			}
+				marker.setIcon('http://127.0.0.1:8080/map/driver_nearby_small.png');
+
 		window.globals.driversMarkers[i] = marker;
 		window.globals.driversMarkers[i].details = driver;
 		google.maps.event.addListener(marker, 'click', (function(marker, i) {
@@ -391,8 +395,27 @@
 
 			if (isDriverOnline(requestDetails.driver_id)) {
 					$("#driver_status").html("Online");
+					$("#additionl_driver_info").css( "display", "block" );
+
+						animateMarker(window.globals.driversMarkers[getDriverIndexById(requestDetails.driver_id)]);
+
+					$( "#highlight_driver" ).off();
+
+					var id = requestDetails.driver_id;
+
+
+					$("#highlight_driver").click(id, function (event){
+						if (window.globals.selectionState != REDIRECT) {
+							id = event.data;
+							index = getDriverIndexById(id);
+							animateMarker(window.globals.driversMarkers[index]);
+						}
+					});
+
+
 			} else {
 				$("#driver_status").html("Offline");
+				$("#additionl_driver_info").css( "display", "none" );
 
 			}
 		}
@@ -434,16 +457,17 @@
 				$( "#redirect_request" ).html( "Cancel redirection" );
 				window.globals.selectionState = REDIRECT;
 
+				$("#additionl_driver_info").css( "display", "none" );
+
 			} else {
 				reshowRequestsMarkers();
 				$( "#cancel_request" ).css( "display", "block" );
 				$( "#redirect_request" ).html( "Redirect Request" );
+					$("#additionl_driver_info").css( "display", "block" );
 				window.globals.selectionState = CLEAR;
 			}
 
-
 		}
-
 
 		function getRequestIndexById(id){
 
