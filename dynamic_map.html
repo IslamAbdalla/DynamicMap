@@ -3,6 +3,8 @@
 <head>
 	<meta http-equiv="Content-Type" content="text/html; charset=windows-1252">
   <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.1.1.min.js"></script>
+  <script src="http://momentjs.com/downloads/moment.min.js"></script>
+  <script src="http://momentjs.com/downloads/moment-timezone-with-data.js"></script>
   <script src="ajax_functions.js"></script>
 
 	<title>Dynamic map page</title>
@@ -296,6 +298,7 @@
 
     function  showMrakersAndDrivers(listOfRequests, listOfDrivers, timeNow){
 
+
 				window.globals.requests = listOfRequests;
 				window.globals.drivers = listOfDrivers;
 
@@ -462,10 +465,14 @@
 
 			// $("#request_id" ).html("requestDetails.request_id");
 			$("#request_id").html(requestDetails.request_id);
-			time = new Date(requestDetails.time);
+
+
+
+			time = new Date(Number(requestDetails.time)*1000);
 			var format = 'YYYY/MM/DD HH:mm:ss ZZ';
-      // time = moment(Date, format).tz(zone).format(format);
-			$("#request_time").html(requestDetails.time);
+      var timeString = moment(time, format).tz("Africa/Khartoum").format('lll');
+
+			$("#request_time").html(timeString);
 			$("#request_notes").html(requestDetails.notes);
 			$("#request_price").html(requestDetails.price);
 			$("#request_status").html(requestDetails.status);
