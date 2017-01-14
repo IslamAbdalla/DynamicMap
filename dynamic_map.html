@@ -130,14 +130,14 @@
 				<li><span>Driver phone: </span> <span id="driver_phone"></span></li>
 					</ul>
 
-					<div id="additionl_driver_info">
+					<!-- <div id="additionl_driver_info">
 					<ul>
 					<li><span>Vehicle: </span> <span id="driver_vehicle"></span></li>
 					<li><span>Plate No.: </span> <span id="driver_plate"></span></li>
 						</ul>
 
-					</div>
-
+					</div> -->
+					<span>Driver status: </span> <span id="driver_status"></span>
 
 		</div>
 
@@ -156,7 +156,6 @@
 					center: khartoumCords
 				});
 
-
 								CLEAR = "clear";
 								REDIRECT = "redirect";
 								REQUEST = "request";
@@ -171,7 +170,7 @@
 
 		}
 
-    function  showMrakersAndDrivers(listOfRequests, listOfDrivers, time){
+    function  showMrakersAndDrivers(listOfRequests, listOfDrivers, timeNow){
 
 				window.globals.requests = listOfRequests;
 				window.globals.drivers = listOfDrivers;
@@ -181,29 +180,54 @@
 
 				for (var i = 0; i < window.globals.requests.length; i++) {
 					id = window.globals.requests[i].request_id;
-					$("#requests_list").append('<li><span>ID: </span> <span>' + id + '</span></li>');
+					time = timeNow - Number(window.globals.requests[i].time);
+					var minus = "";
+					if(time < 0) {
+						minus = "-";
+						time = -time;
+					}
+					var hours = Math.floor(time / 60 / 60);
+					var minutes = Math.floor((time - 60 * 60 * hours) / 60);
+					var seconds = (time - hours * 60 * 60 - minutes * 60 );
+					// console.log(id +"  " + time);
+					$("#requests_list").append('<li id="list_request'+id+'"><span>ID: </span> <span>' + id + '</span><span>,&emsp;</span><span>'+minus + hours+":" +minutes+":" + seconds+ '</span></li>');
+					$("#list_request"+id).click(id, function (event){
+						if (window.globals.selectionState != REDIRECT) {
+
+							id = event.data;
+							index = getRequestIndexById(id);
+							animateMarker(window.globals.requestMarkers[index]);
+							showRequestDetails(window.globals.requestMarkers[index].details);
+							window.globals.selectedRequest = window.globals.requestMarkers[index].details;
+						}
+					});
 				}
 
 				for (var i = 0; i < window.globals.drivers.length; i++) {
-					name = window.globals.drivers[i].name;
-					$("#drivers_list").append('<li><span>' + name + '</span></li>');
+					var name = window.globals.drivers[i].name;
+					var id = window.globals.drivers[i].id;
+					$("#drivers_list").append('<li id="list_driver'+id+'"><span>' + name + '</span></li>');
+					$("#list_driver"+id).click(id, function (event){
+						if (window.globals.selectionState != REDIRECT) {
+							id = event.data;
+							index = getDriverIndexById(id);
+							// console.log(id +"    "+index);
+							animateMarker(window.globals.driversMarkers[index]);
+						}
+					});
 				}
 
 				clearMap();
-
-
-				if (window.globals.selectionState != REDIRECT) {
       for (var i = 0; i < listOfRequests.length; i++) {
       	request = listOfRequests[i];
 				showRequestMarker(request, i);
       }
-		}
 
 			for (var i = 0; i < listOfDrivers.length; i++) {
 				driver = listOfDrivers[i];
 				showDriverMarker(driver, i);
 			}
-      console.log(listOfDrivers);
+      // console.log(listOfDrivers);
     }
 
 		function hideRequestsMarkers(){
@@ -232,9 +256,15 @@
 		function showRequestMarker(request, i){
 			var marker = new google.maps.Marker({
 				position: {lat:  Number(request.pickup_lat) , lng:  Number(request.pickup_lng)},
-				map: window.globals.map,
 				data: request
 			});
+
+
+			if (window.globals.selectionState != REDIRECT) {
+				marker.setMap(window.globals.map);
+			} else {
+				marker.setMap(null);
+			}
 
 			if (request.status == "accepted") {
 				// marker.setIcon('http://maps.google.com/mapfiles/ms/icons/red-dot.png');
@@ -249,8 +279,15 @@
 		google.maps.event.addListener(marker, 'click', (function(marker, i) {
 			return function() {
 				showRequestDetails(marker.data);
+				 animateMarker(marker);
 			}
 		})(marker, i));
+		}
+
+		function animateMarker(marker){
+		marker.setAnimation(google.maps.Animation.BOUNCE);
+		setTimeout(function(){ marker.setAnimation(null); }, 750);
+
 		}
 
 		function showDriverMarker(driver, i){
@@ -269,7 +306,7 @@
 				marker.setIcon('http://maps.google.com/mapfiles/ms/icons/green-dot.png');
 			}
 		window.globals.driversMarkers[i] = marker;
-		window.globals.driversMarkers[i].details = request;
+		window.globals.driversMarkers[i].details = driver;
 		google.maps.event.addListener(marker, 'click', (function(marker, i) {
 			return function() {
 				showDriverDetails(marker.data);
@@ -285,6 +322,9 @@
 
 			// $("#request_id" ).html("requestDetails.request_id");
 			$("#request_id").html(requestDetails.request_id);
+			time = new Date(requestDetails.time);
+			var format = 'YYYY/MM/DD HH:mm:ss ZZ';
+      // time = moment(Date, format).tz(zone).format(format);
 			$("#request_time").html(requestDetails.time);
 			$("#request_notes").html(requestDetails.notes);
 			$("#request_price").html(requestDetails.price);
@@ -292,12 +332,20 @@
 			$("#passenger_name").html(requestDetails.passenger_name);
 			$("#passenger_phone").html(requestDetails.passenger_phone);
 
+			$("#driver_name").html(requestDetails.driver_name);
+			$("#driver_phone").html(requestDetails.driver_phone);
+$( "#cancel_request" ).off();
+			$( "#cancel_request" ).click(requestDetails.request_id, function (event) {
+					cancel(event.data);
+					console.log(event.data);
+			} );
+
+
 			if (isDriverOnline(requestDetails.driver_id)) {
-				console.log("Driver online");
+					$("#driver_status").html("Online");
 			} else {
-				console.log("Driver offline");
-				$("#driver_name").html(requestDetails.driver_name);
-				$("#driver_phone").html(requestDetails.driver_phone);
+				$("#driver_status").html("Offline");
+
 			}
 		}
 
@@ -342,6 +390,46 @@
 
 
 		}
+
+
+		function getRequestIndexById(id){
+
+				if (window.globals.requestMarkers != null) {
+					for (var i = 0; i < window.globals.requestMarkers.length; i++) {
+						if (window.globals.requestMarkers[i].details.request_id == id){
+							return i;
+
+						}
+					}
+				}
+
+		}
+
+function getDriverIndexById(id){
+
+				if (window.globals.driversMarkers != null) {
+					for (var i = 0; i < window.globals.driversMarkers.length; i++) {
+						if (window.globals.driversMarkers[i].details.id == id){
+							return i;
+
+						}
+					}
+				}
+
+		}
+
+		function removeRequest(id){
+			index = getRequestIndexById(id);
+			window.globals.requestMarkers[index].setMap(null);
+			window.globals.requestMarkers.splice(index,1);
+
+			window.globals.requests.splice(index,1);
+
+
+
+		}
+
+
 
 	</script>
 	<script async defer

@@ -104,7 +104,8 @@ function cancel(request_id) {
     url: baseURL + "admin/cancel",
         success: function(data) {
       var ajaxDisplay = document.getElementById('ajaxDiv');
-      if (data.status === "0"){//data.requests and data.drivers contain what you need
+      if (data.status === "0"){
+        removeRequest(request_id);
 
     }
   }
